@@ -15,7 +15,11 @@ CREATE TABLE IF NOT EXISTS "attendance_periods"
     "updated_at"    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_by"    INT,
     "deleted_at"    TIMESTAMP,
-    "deleted_by"    INT
+    "deleted_by"    INT,
+
+    CONSTRAINT payroll_periods_no_overlap
+        EXCLUDE USING GIST (
+        daterange(start_date, end_date, '[]') WITH &&)
 );
 
 DROP TABLE IF EXISTS "attendances";
