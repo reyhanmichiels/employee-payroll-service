@@ -5,8 +5,8 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/hash"
 	"github.com/reyhanmichiels/go-pkg/v2/log"
 	"github.com/reyhanmichiels/go-pkg/v2/parser"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/domain"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/usecase/user"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/domain"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/usecase/user"
 )
 
 type Usecases struct {

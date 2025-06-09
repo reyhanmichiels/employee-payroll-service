@@ -7,7 +7,7 @@ import (
 
 	"github.com/reyhanmichiels/go-pkg/v2/codes"
 	"github.com/reyhanmichiels/go-pkg/v2/errors"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/entity"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/entity"
 )
 
 const (

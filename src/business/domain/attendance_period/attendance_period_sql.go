@@ -9,7 +9,7 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/errors"
 	"github.com/reyhanmichiels/go-pkg/v2/query"
 	"github.com/reyhanmichiels/go-pkg/v2/sql"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/entity"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/entity"
 )
 
 func (a *attendancePeriod) getSQL(ctx context.Context, param entity.AttendancePeriodParam) (entity.AttendancePeriod, error) {

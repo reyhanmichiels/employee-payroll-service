@@ -5,11 +5,11 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/parser"
 	"github.com/reyhanmichiels/go-pkg/v2/redis"
 	"github.com/reyhanmichiels/go-pkg/v2/sql"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/domain/attendance"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/domain/attendance_period"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/domain/overtime"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/domain/reimbursement"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/domain/user"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/domain/attendance"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/domain/attendance_period"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/domain/overtime"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/domain/reimbursement"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/domain/user"
 )
 
 type Domains struct {

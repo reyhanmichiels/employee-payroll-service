@@ -18,8 +18,8 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/log"
 	"github.com/reyhanmichiels/go-pkg/v2/parser"
 	"github.com/reyhanmichiels/go-pkg/v2/rate_limiter"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/usecase"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/utils/config"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/usecase"
+	"github.com/reyhanmichies/employee-payroll-service/src/utils/config"
 )
 
 var once = &sync.Once{}

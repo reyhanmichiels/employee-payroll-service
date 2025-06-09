@@ -16,7 +16,7 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/errors"
 	"github.com/reyhanmichiels/go-pkg/v2/header"
 	"github.com/reyhanmichiels/go-pkg/v2/query"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/entity"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/entity"
 )
 
 const (

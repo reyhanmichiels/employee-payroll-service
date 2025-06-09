@@ -9,7 +9,7 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/parser"
 	"github.com/reyhanmichiels/go-pkg/v2/redis"
 	"github.com/reyhanmichiels/go-pkg/v2/sql"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/entity"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/entity"
 )
 
 type Interface interface {

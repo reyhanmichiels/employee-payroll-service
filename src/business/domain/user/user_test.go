@@ -19,7 +19,7 @@ import (
 	mock_log "github.com/reyhanmichiels/go-pkg/v2/tests/mock/log"
 	mock_parser "github.com/reyhanmichiels/go-pkg/v2/tests/mock/parser"
 	mock_redis "github.com/reyhanmichiels/go-pkg/v2/tests/mock/redis"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/entity"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/entity"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )

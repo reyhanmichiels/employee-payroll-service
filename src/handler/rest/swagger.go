@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/docs/swagger"
+	"github.com/reyhanmichies/employee-payroll-service/docs/swagger"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )

@@ -11,7 +11,7 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/codes"
 	"github.com/reyhanmichiels/go-pkg/v2/errors"
 	"github.com/reyhanmichiels/go-pkg/v2/header"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/entity"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/entity"
 )
 
 func (r *rest) httpRespSuccess(ctx *gin.Context, code codes.Code, data interface{}, p *entity.Pagination) {
