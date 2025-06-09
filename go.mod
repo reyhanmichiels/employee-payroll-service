@@ -1,4 +1,4 @@
-module github.com/reyhanmichies/go-rest-api-boiler-plate
+module github.com/reyhanmichies/employee-payroll-service
 
 go 1.22.2
 

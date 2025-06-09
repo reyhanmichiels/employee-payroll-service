@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/reyhanmichiels/go-pkg/v2/codes"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/entity"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/entity"
 )
 
 // @Summary Register

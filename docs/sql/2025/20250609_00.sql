@@ -1,0 +1,85 @@
+DROP TABLE IF EXISTS "attendance_periods";
+CREATE TABLE IF NOT EXISTS "attendance_periods"
+(
+    "id"            SERIAL PRIMARY KEY,
+    "start_date"    DATE        NOT NULL,
+    "end_date"      DATE        NOT NULL,
+    "period_status" VARCHAR(50) NOT NULL,
+
+    -- Utility columns
+    "status"        SMALLINT    NOT NULL DEFAULT 1,
+    "flag"          INT         NOT NULL DEFAULT 0,
+    "meta"          VARCHAR(255),
+    "created_at"    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by"    INT,
+    "updated_at"    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_by"    INT,
+    "deleted_at"    TIMESTAMP,
+    "deleted_by"    INT
+);
+
+DROP TABLE IF EXISTS "attendances";
+CREATE TABLE IF NOT EXISTS "attendances"
+(
+    "id"                      SERIAL PRIMARY KEY,
+    "fk_attendance_period_id" INT       NOT NULL,
+    "fk_user_id"              INT       NOT NULL,
+    "attendance_date"         DATE      NOT NULL,
+
+    -- Utility columns
+    "status"                  SMALLINT  NOT NULL DEFAULT 1,
+    "flag"                    INT       NOT NULL DEFAULT 0,
+    "meta"                    VARCHAR(255),
+    "created_at"              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by"              INT,
+    "updated_at"              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_by"              INT,
+    "deleted_at"              TIMESTAMP,
+    "deleted_by"              INT,
+
+    CONSTRAINT unique_user_date UNIQUE ("fk_user_id", "attendance_date")
+);
+
+DROP TABLE IF EXISTS "overtimes";
+CREATE TABLE IF NOT EXISTS "overtimes"
+(
+    "id"            SERIAL PRIMARY KEY,
+    "fk_user_id"    INT       NOT NULL,
+    "overtime_date" DATE      NOT NULL,
+    "overtime_hour" INT       NOT NULL,
+    "approved_date" DATE,
+    "approved_by"   INT,
+
+    -- Utility columns
+    "status"        SMALLINT  NOT NULL DEFAULT 1,
+    "flag"          INT       NOT NULL DEFAULT 0,
+    "meta"          VARCHAR(255),
+    "created_at"    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by"    INT,
+    "updated_at"    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_by"    INT,
+    "deleted_at"    TIMESTAMP,
+    "deleted_by"    INT
+);
+
+DROP TABLE IF EXISTS "reimbursements";
+CREATE TABLE IF NOT EXISTS "reimbursements"
+(
+    "id"            SERIAL PRIMARY KEY,
+    "fk_user_id"    INT       NOT NULL,
+    "description"   TEXT      NOT NULL,
+    "amount"        DECIMAL   NOT NULL,
+    "approved_date" DATE,
+    "approved_by"   INT,
+
+    -- Utility columns
+    "status"        SMALLINT  NOT NULL DEFAULT 1,
+    "flag"          INT       NOT NULL DEFAULT 0,
+    "meta"          VARCHAR(255),
+    "created_at"    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by"    INT,
+    "updated_at"    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_by"    INT,
+    "deleted_at"    TIMESTAMP,
+    "deleted_by"    INT
+);

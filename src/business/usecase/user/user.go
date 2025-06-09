@@ -11,8 +11,8 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/hash"
 	"github.com/reyhanmichiels/go-pkg/v2/null"
 	"github.com/reyhanmichiels/go-pkg/v2/query"
-	userDomain "github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/domain/user"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/entity"
+	userDomain "github.com/reyhanmichies/employee-payroll-service/src/business/domain/user"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/entity"
 )
 
 var Now = time.Now
