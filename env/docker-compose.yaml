@@ -1,25 +1,28 @@
-name: boiler-plate-local
+name: employee-payroll-service-local
 services:
-  mysql:
-    # use this for mac
-    platform: linux/amd64
-    image: mysql:8.0.26
-
-    # use this for linux
-    # platform: linux/x86_64
-    # image: mysql:8.0.26
-
-    # ======================= #
+  postgresql:
+    image: postgres:16
     restart: on-failure
     ports:
-      - "3306:3306"
-    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+      - "5432:5432"
     volumes:
-      - "./storage/mysql/scripts:/docker-entrypoint-initdb.d"
-      - "./storage/mysql/data:/var/lib/mysql"
+      - "./storage/postgresql/data:/var/lib/postgresql/data"
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_TCP_PORT: 3306
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: employee_payroll_db
+      POSTGRES_PORT: 5432
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - "./storage/rabbitmq/data:/var/lib/rabbitmq"
 
   redis:
     image: redis:6
