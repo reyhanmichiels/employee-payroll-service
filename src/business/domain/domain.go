@@ -5,11 +5,19 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/parser"
 	"github.com/reyhanmichiels/go-pkg/v2/redis"
 	"github.com/reyhanmichiels/go-pkg/v2/sql"
+	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/domain/attendance"
+	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/domain/attendance_period"
+	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/domain/overtime"
+	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/domain/reimbursement"
 	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/domain/user"
 )
 
 type Domains struct {
-	User user.Interface
+	User             user.Interface
+	Attendance       attendance.Interface
+	AttendancePeriod attendance_period.Interface
+	Overtime         overtime.Interface
+	Reimbursement    reimbursement.Interface
 }
 
 type InitParam struct {
@@ -22,6 +30,10 @@ type InitParam struct {
 
 func Init(param InitParam) *Domains {
 	return &Domains{
-		User: user.Init(user.InitParam{Db: param.Db, Log: param.Log, Redis: param.Redis, Json: param.Json}),
+		User:             user.Init(user.InitParam{Db: param.Db, Log: param.Log, Redis: param.Redis, Json: param.Json}),
+		Attendance:       attendance.Init(attendance.InitParam{Db: param.Db, Redis: param.Redis, Json: param.Json}),
+		AttendancePeriod: attendance_period.Init(attendance_period.InitParam{Db: param.Db, Redis: param.Redis, Json: param.Json}),
+		Overtime:         overtime.Init(overtime.InitParam{Db: param.Db, Log: param.Log, Redis: param.Redis, Json: param.Json}),
+		Reimbursement:    reimbursement.Init(reimbursement.InitParam{Db: param.Db, Log: param.Log, Redis: param.Redis, Json: param.Json}),
 	}
 }
