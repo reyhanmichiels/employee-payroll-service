@@ -1,10 +1,10 @@
 package domain
 
 import (
-	"github.com/reyhanmichiels/go-pkg/log"
-	"github.com/reyhanmichiels/go-pkg/parser"
-	"github.com/reyhanmichiels/go-pkg/redis"
-	"github.com/reyhanmichiels/go-pkg/sql"
+	"github.com/reyhanmichiels/go-pkg/v2/log"
+	"github.com/reyhanmichiels/go-pkg/v2/parser"
+	"github.com/reyhanmichiels/go-pkg/v2/redis"
+	"github.com/reyhanmichiels/go-pkg/v2/sql"
 	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/domain/user"
 )
 

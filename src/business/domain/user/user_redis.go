@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/reyhanmichiels/go-pkg/codes"
-	"github.com/reyhanmichiels/go-pkg/errors"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/errors"
 	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/entity"
 )
 

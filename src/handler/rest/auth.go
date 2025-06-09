@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/reyhanmichiels/go-pkg/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
 	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/entity"
 )
 
