@@ -171,3 +171,21 @@ func (r *rest) setUserInfo(ctx *gin.Context, userID int64) error {
 
 	return nil
 }
+
+func (r *rest) AuthorizeScope(roleID int64, f gin.HandlerFunc) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		user, err := r.auth.GetUserAuthInfo(ctx.Request.Context())
+		if err != nil {
+			r.httpRespError(ctx, errors.NewWithCode(codes.CodeAuthFailure, "failed to get user auth info"))
+			return
+		}
+
+		if user.RoleID != roleID {
+			r.httpRespError(ctx, errors.NewWithCode(codes.CodeUnauthorized, "User doesn't have access"))
+			return
+		}
+
+		ctx.Next()
+		f(ctx)
+	}
+}
