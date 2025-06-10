@@ -6,6 +6,7 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/log"
 	"github.com/reyhanmichiels/go-pkg/v2/parser"
 	"github.com/reyhanmichies/employee-payroll-service/src/business/domain"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/usecase/attendance"
 	"github.com/reyhanmichies/employee-payroll-service/src/business/usecase/attendance_period"
 	"github.com/reyhanmichies/employee-payroll-service/src/business/usecase/user"
 )
@@ -13,6 +14,7 @@ import (
 type Usecases struct {
 	User             user.Interface
 	AttendancePeriod attendance_period.Interface
+	Attendance       attendance.Interface
 }
 
 type InitParam struct {
@@ -27,5 +29,6 @@ func Init(param InitParam) *Usecases {
 	return &Usecases{
 		User:             user.Init(user.InitParam{UserDomain: param.Dom.User, Auth: param.Auth, Hash: param.Hash}),
 		AttendancePeriod: attendance_period.Init(attendance_period.InitParam{Auth: param.Auth, AttendancePeriod: param.Dom.AttendancePeriod}),
+		Attendance:       attendance.Init(attendance.InitParam{Auth: param.Auth, AttendancePeriod: param.Dom.AttendancePeriod, Attendance: param.Dom.Attendance}),
 	}
 }
