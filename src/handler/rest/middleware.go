@@ -189,3 +189,17 @@ func (r *rest) AuthorizeScope(roleID int64, f gin.HandlerFunc) gin.HandlerFunc {
 		f(ctx)
 	}
 }
+
+func (r *rest) VerifyCurrentAttendancePeriod(ctx *gin.Context) {
+	attendancePeriod, err := r.uc.AttendancePeriod.GetCurrentAttendancePeriod(ctx.Request.Context())
+	if err != nil {
+		r.httpRespError(ctx, err)
+		return
+	}
+
+	c := ctx.Request.Context()
+	c = context.WithValue(c, "currentAttendancePeriod", attendancePeriod)
+	ctx.Request = ctx.Request.WithContext(c)
+
+	ctx.Next()
+}

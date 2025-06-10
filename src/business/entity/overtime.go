@@ -9,7 +9,7 @@ type Overtime struct {
 	ID           int64      `db:"id" json:"id"`
 	UserID       int64      `db:"fk_user_id" json:"userID"`
 	OvertimeDate null.Date  `db:"overtime_date" json:"overtimeDate"`
-	OvertimeHour int64      `db:"overtime_hour" json:"overtimeHour"`
+	OvertimeHour float64    `db:"overtime_hour" json:"overtimeHour"`
 	ApprovedDate null.Date  `db:"approved_date" json:"approvedDate"`
 	ApprovedBy   null.Int64 `db:"approved_by" json:"approvedBy"`
 
@@ -26,21 +26,23 @@ type Overtime struct {
 }
 
 type OvertimeInputParam struct {
-	UserID       int64      `db:"fk_user_id" json:"userID"`
-	OvertimeDate null.Date  `db:"overtime_date" json:"overtimeDate"`
-	OvertimeHour int64      `db:"overtime_hour" json:"overtimeHour"`
-	CreatedAt    null.Time  `db:"created_at" json:"-"`
-	CreatedBy    null.Int64 `db:"created_by" json:"-"`
+	UserID       int64        `db:"fk_user_id" json:"userID"`
+	OvertimeDate null.Date    `db:"overtime_date" json:"overtimeDate"`
+	OvertimeHour null.Float64 `db:"overtime_hour" json:"overtimeHour"`
+	ApprovedDate null.Date    `db:"approved_date" json:"approvedDate"`
+	ApprovedBy   null.Int64   `db:"approved_by" json:"approvedBy"`
+	CreatedAt    null.Time    `db:"created_at" json:"-"`
+	CreatedBy    null.Int64   `db:"created_by" json:"-"`
 }
 
 type OvertimeUpdateParam struct {
-	OvertimeDate null.Date  `db:"overtime_date" json:"overtimeDate"`
-	OvertimeHour int64      `db:"overtime_hour" json:"overtimeHour"`
-	ApprovedDate null.Date  `db:"approved_date" json:"approvedDate"`
-	ApprovedBy   null.Int64 `db:"approved_by" json:"approvedBy"`
-	Status       null.Int64 `db:"status" json:"status"`
-	UpdatedAt    null.Time  `db:"updated_at" json:"-"`
-	UpdatedBy    null.Int64 `db:"updated_by" json:"-"`
+	OvertimeDate null.Date    `db:"overtime_date" json:"overtimeDate"`
+	OvertimeHour null.Float64 `db:"overtime_hour" json:"overtimeHour"`
+	ApprovedDate null.Date    `db:"approved_date" json:"approvedDate"`
+	ApprovedBy   null.Int64   `db:"approved_by" json:"approvedBy"`
+	Status       null.Int64   `db:"status" json:"status"`
+	UpdatedAt    null.Time    `db:"updated_at" json:"-"`
+	UpdatedBy    null.Int64   `db:"updated_by" json:"-"`
 }
 
 type OvertimeParam struct {
@@ -48,4 +50,9 @@ type OvertimeParam struct {
 	QueryOption query.Option
 	BypassCache bool
 	PaginationParam
+}
+
+func (o *OvertimeInputParam) MockApprovalData(currentTime null.Time) {
+	o.ApprovedDate = null.DateFrom(currentTime.Time)
+	o.ApprovedBy = null.Int64From(1)
 }
