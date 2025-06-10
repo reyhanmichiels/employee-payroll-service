@@ -137,6 +137,10 @@ github.com/reyhanmichiels/go-pkg/v2 v2.0.1 h1:5yHPNeTMFz91jap8txcLXKj1RJSErB4T13
 github.com/reyhanmichiels/go-pkg/v2 v2.0.1/go.mod h1:FlH7rF7EXitK+dRNGYNjPLEdT3hbZmXHCgMYojpcFK0=
 github.com/reyhanmichiels/go-pkg/v2 v2.0.2 h1:XFnemlt9L1Qjd8FFZ2OwYRAx1TCQetV1drTJEpfEltM=
 github.com/reyhanmichiels/go-pkg/v2 v2.0.2/go.mod h1:FlH7rF7EXitK+dRNGYNjPLEdT3hbZmXHCgMYojpcFK0=
+github.com/reyhanmichiels/go-pkg/v2 v2.1.0 h1:aSRG6kmbv76i5UwxQv7P/lOHI03cVxPLCj1lYn3A04A=
+github.com/reyhanmichiels/go-pkg/v2 v2.1.0/go.mod h1:FlH7rF7EXitK+dRNGYNjPLEdT3hbZmXHCgMYojpcFK0=
+github.com/reyhanmichiels/go-pkg/v2 v2.1.1 h1:0lFVd8lN2DIpDxgPYQsiZrgix10ymjg6pflIDviUexA=
+github.com/reyhanmichiels/go-pkg/v2 v2.1.1/go.mod h1:FlH7rF7EXitK+dRNGYNjPLEdT3hbZmXHCgMYojpcFK0=
 github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZVejAe8=
 github.com/rogpeppe/go-internal v1.9.0/go.mod h1:WtVeX8xhTBvf0smdhujwtBcq4Qrzq/fJaraNFVN+nFs=
 github.com/sagikazarmark/locafero v0.4.0 h1:HApY1R9zGo4DBgr7dqsTH/JJxLTTsOt7u6keLGt6kNQ=
