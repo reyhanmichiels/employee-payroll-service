@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/lib/pq"
 	"github.com/reyhanmichiels/go-pkg/v2/codes"
 	"github.com/reyhanmichiels/go-pkg/v2/errors"
 	"github.com/reyhanmichiels/go-pkg/v2/query"
@@ -95,40 +96,22 @@ func (o *overtime) createSQL(ctx context.Context, inputParam entity.OvertimeInpu
 
 	o.log.Debug(ctx, fmt.Sprintf("create overtime with body: %v", inputParam))
 
-	res, err := o.db.NamedExec(ctx, "iNewOvertime", insertOvertime, inputParam)
+	stmt, err := o.db.PrepareNamed(ctx, "iNewOvertime", insertOvertime)
+	if err != nil {
+		return overtime, errors.NewWithCode(codes.CodeSQLPrepareStmt, err.Error())
+	}
+	defer stmt.Close()
 
-	mysqlErr := &mysql.MySQLError{}
-	// 1062 is the error code for duplicate entry
-	if err != nil && errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
+	err = stmt.Get(&overtime, inputParam)
+
+	pgErr := &pq.Error{}
+	if err != nil && errors.As(err, &pgErr) && pgErr.Code == entity.PSQLUniqueConstraintCode {
 		return overtime, errors.NewWithCode(codes.CodeSQLUniqueConstraint, err.Error())
 	} else if err != nil {
 		return overtime, errors.NewWithCode(codes.CodeSQLTxExec, err.Error())
 	}
 
-	rowCount, err := res.RowsAffected()
-	if err != nil {
-		return overtime, errors.NewWithCode(codes.CodeSQLNoRowsAffected, err.Error())
-	} else if rowCount < 1 {
-		return overtime, errors.NewWithCode(codes.CodeSQLNoRowsAffected, "no overtime created")
-	}
-
-	lastID, err := res.LastInsertId()
-	if err != nil {
-		return overtime, errors.NewWithCode(codes.CodeSQLNoRowsAffected, err.Error())
-	}
-
 	o.log.Debug(ctx, fmt.Sprintf("success create overtime with body: %v", inputParam))
-
-	// Construct the returned overtime object based on input parameters
-	overtime = entity.Overtime{
-		ID:           lastID,
-		UserID:       inputParam.UserID,
-		OvertimeDate: inputParam.OvertimeDate,
-		OvertimeHour: inputParam.OvertimeHour,
-		Status:       1,
-		CreatedAt:    inputParam.CreatedAt,
-		CreatedBy:    inputParam.CreatedBy,
-	}
 
 	return overtime, nil
 }

@@ -14,7 +14,7 @@ const (
 			:attendance_date,
 			:created_at,
 			:created_by
-		)
+		) RETURNING *
 	`
 
 	readAttendance = `

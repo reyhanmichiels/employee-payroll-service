@@ -14,7 +14,7 @@ const (
 			:period_status,
 			:created_at,
 			:created_by
-		)
+		) RETURNING *
 	`
 
 	readAttendancePeriod = `
