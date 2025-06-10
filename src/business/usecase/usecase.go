@@ -8,6 +8,7 @@ import (
 	"github.com/reyhanmichies/employee-payroll-service/src/business/domain"
 	"github.com/reyhanmichies/employee-payroll-service/src/business/usecase/attendance"
 	"github.com/reyhanmichies/employee-payroll-service/src/business/usecase/attendance_period"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/usecase/overtime"
 	"github.com/reyhanmichies/employee-payroll-service/src/business/usecase/user"
 )
 
@@ -15,6 +16,7 @@ type Usecases struct {
 	User             user.Interface
 	AttendancePeriod attendance_period.Interface
 	Attendance       attendance.Interface
+	Overtime         overtime.Interface
 }
 
 type InitParam struct {
@@ -30,5 +32,6 @@ func Init(param InitParam) *Usecases {
 		User:             user.Init(user.InitParam{UserDomain: param.Dom.User, Auth: param.Auth, Hash: param.Hash}),
 		AttendancePeriod: attendance_period.Init(attendance_period.InitParam{Auth: param.Auth, AttendancePeriod: param.Dom.AttendancePeriod}),
 		Attendance:       attendance.Init(attendance.InitParam{Auth: param.Auth, AttendancePeriod: param.Dom.AttendancePeriod, Attendance: param.Dom.Attendance}),
+		Overtime:         overtime.Init(overtime.InitParam{Auth: param.Auth, OvertimeDom: param.Dom.Overtime}),
 	}
 }

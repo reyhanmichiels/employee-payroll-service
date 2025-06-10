@@ -138,6 +138,9 @@ func (r *rest) Register() {
 
 	// attendance
 	v1.POST("/attendances", r.SubmitAttendance)
+
+	// overtime
+	v1.POST("/overtimes", r.VerifyCurrentAttendancePeriod, r.SubmitOvertime)
 }
 
 func (r *rest) Run() {
