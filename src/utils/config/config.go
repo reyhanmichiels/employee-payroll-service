@@ -6,6 +6,7 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/auth"
 	"github.com/reyhanmichiels/go-pkg/v2/log"
 	"github.com/reyhanmichiels/go-pkg/v2/parser"
+	"github.com/reyhanmichiels/go-pkg/v2/pubsub/rabbitmq"
 	"github.com/reyhanmichiels/go-pkg/v2/rate_limiter"
 	"github.com/reyhanmichiels/go-pkg/v2/redis"
 	"github.com/reyhanmichiels/go-pkg/v2/sql"
@@ -22,6 +23,7 @@ type Application struct {
 	Translator  translator.Config
 	RateLimiter rate_limiter.Config
 	Parser      parser.Options
+	RabbitMQ    rabbitmq.Config
 }
 
 type ApplicationMeta struct {

@@ -15,6 +15,7 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/sql"
 	"github.com/reyhanmichies/employee-payroll-service/src/business/domain"
 	"github.com/reyhanmichies/employee-payroll-service/src/business/usecase"
+	"github.com/reyhanmichies/employee-payroll-service/src/handler/pubsub"
 	"github.com/reyhanmichies/employee-payroll-service/src/handler/rest"
 	"github.com/reyhanmichies/employee-payroll-service/src/utils/config"
 )
@@ -78,11 +79,17 @@ func main() {
 	// auth
 	auth := auth.Init(cfg.Auth, log)
 
+	// pubSub
+	pubSub := pubsub.Init(pubsub.InitParam{Log: log, MQConfig: cfg.RabbitMQ})
+
 	// init usecase
 	uc := usecase.Init(usecase.InitParam{Dom: dom, Log: log, Json: parser.JSONParser(), Hash: hash, Auth: auth})
 
 	// init http server
 	r := rest.Init(rest.InitParam{Uc: uc, GinConfig: cfg.Gin, Log: log, RateLimiter: rateLimiter, Json: parser.JSONParser(), Auth: auth})
+
+	// subscribe to pubSub events
+	pubSub.Subscribe()
 
 	// run http server
 	r.Run()
