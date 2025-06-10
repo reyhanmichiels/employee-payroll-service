@@ -6,6 +6,11 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/query"
 )
 
+const (
+	RoleIDAdmin = 1
+	RoleIDUser  = 2
+)
+
 type User struct {
 	ID           int64       `db:"id" json:"id"`
 	RoleID       int64       `db:"fk_role_id" json:"roleID"`
