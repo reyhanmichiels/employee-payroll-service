@@ -31,8 +31,8 @@ type InitParam struct {
 func Init(param InitParam) *Domains {
 	return &Domains{
 		User:             user.Init(user.InitParam{Db: param.Db, Log: param.Log, Redis: param.Redis, Json: param.Json}),
-		Attendance:       attendance.Init(attendance.InitParam{Db: param.Db, Redis: param.Redis, Json: param.Json}),
-		AttendancePeriod: attendance_period.Init(attendance_period.InitParam{Db: param.Db, Redis: param.Redis, Json: param.Json}),
+		Attendance:       attendance.Init(attendance.InitParam{Db: param.Db, Log: param.Log, Redis: param.Redis, Json: param.Json}),
+		AttendancePeriod: attendance_period.Init(attendance_period.InitParam{Db: param.Db, Log: param.Log, Redis: param.Redis, Json: param.Json}),
 		Overtime:         overtime.Init(overtime.InitParam{Db: param.Db, Log: param.Log, Redis: param.Redis, Json: param.Json}),
 		Reimbursement:    reimbursement.Init(reimbursement.InitParam{Db: param.Db, Log: param.Log, Redis: param.Redis, Json: param.Json}),
 	}

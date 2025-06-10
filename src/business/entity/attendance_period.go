@@ -5,6 +5,24 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/query"
 )
 
+// PeriodStatus constants represent the possible statuses of an attendance period.
+const (
+	// PeriodStatusUpcoming indicates that the attendance period is scheduled to start in the future.
+	PeriodStatusUpcoming = "UPCOMING"
+
+	// PeriodStatusOpen indicates that the attendance period is currently active and open.
+	PeriodStatusOpen = "OPEN"
+
+	// PeriodStatusClosed indicates that the attendance period has ended and is no longer active.
+	PeriodStatusClosed = "CLOSED"
+
+	// PeriodStatusProcessing indicates that the attendance period is being calculated to create a payslip.
+	PeriodStatusProcessing = "PROCESSING"
+
+	// PeriodStatusProcessed indicates that the attendance period has been fully processed.
+	PeriodStatusProcessed = "PROCESSED"
+)
+
 type AttendancePeriod struct {
 	ID           int64     `db:"id" json:"id"`
 	StartDate    null.Date `db:"start_date" json:"startDate"`

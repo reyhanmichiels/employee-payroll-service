@@ -18,7 +18,7 @@ const (
 			:approved_by,
 			:created_at,
 			:created_by
-		)
+		) RETURNING *
 	`
 
 	readOvertime = `

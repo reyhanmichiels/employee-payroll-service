@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/lib/pq"
 	"github.com/reyhanmichiels/go-pkg/v2/codes"
 	"github.com/reyhanmichiels/go-pkg/v2/errors"
 	"github.com/reyhanmichiels/go-pkg/v2/query"
@@ -95,40 +96,29 @@ func (a *attendancePeriod) createSQL(ctx context.Context, inputParam entity.Atte
 
 	a.log.Debug(ctx, fmt.Sprintf("create attendance period with body: %v", inputParam))
 
-	res, err := a.db.NamedExec(ctx, "iNewAttendancePeriod", insertAttendancePeriod, inputParam)
+	stmt, err := a.db.PrepareNamed(ctx, "iNewAttendancePeriod", insertAttendancePeriod)
+	if err != nil {
+		return attendancePeriod, errors.NewWithCode(codes.CodeSQLPrepareStmt, err.Error())
+	}
+	defer stmt.Close()
 
-	mysqlErr := &mysql.MySQLError{}
-	// 1062 is the error code for duplicate entry
-	if err != nil && errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
-		return attendancePeriod, errors.NewWithCode(codes.CodeSQLUniqueConstraint, err.Error())
+	err = stmt.Get(&attendancePeriod, inputParam)
+
+	pgErr := &pq.Error{}
+	if err != nil && errors.As(err, &pgErr) {
+		switch pgErr.Code {
+		case entity.PSQLExclusionConstraintCode:
+			return attendancePeriod, errors.NewWithCode(codes.CodeSQLUniqueConstraint, err.Error())
+		case entity.PSQLUniqueConstraintCode:
+			return attendancePeriod, errors.NewWithCode(codes.CodeSQLUniqueConstraint, err.Error())
+		default:
+			return attendancePeriod, errors.NewWithCode(codes.CodeSQLTxExec, err.Error())
+		}
 	} else if err != nil {
 		return attendancePeriod, errors.NewWithCode(codes.CodeSQLTxExec, err.Error())
 	}
 
-	rowCount, err := res.RowsAffected()
-	if err != nil {
-		return attendancePeriod, errors.NewWithCode(codes.CodeSQLNoRowsAffected, err.Error())
-	} else if rowCount < 1 {
-		return attendancePeriod, errors.NewWithCode(codes.CodeSQLNoRowsAffected, "no attendance period created")
-	}
-
-	lastID, err := res.LastInsertId()
-	if err != nil {
-		return attendancePeriod, errors.NewWithCode(codes.CodeSQLNoRowsAffected, err.Error())
-	}
-
 	a.log.Debug(ctx, fmt.Sprintf("success create attendance period with body: %v", inputParam))
-
-	// Construct the returned attendance period object based on input parameters
-	attendancePeriod = entity.AttendancePeriod{
-		ID:           lastID,
-		StartDate:    inputParam.StartDate,
-		EndDate:      inputParam.EndDate,
-		PeriodStatus: inputParam.PeriodStatus,
-		Status:       1,
-		CreatedAt:    inputParam.CreatedAt,
-		CreatedBy:    inputParam.CreatedBy,
-	}
 
 	return attendancePeriod, nil
 }

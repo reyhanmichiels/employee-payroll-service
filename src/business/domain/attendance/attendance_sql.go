@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/lib/pq"
 	"github.com/reyhanmichiels/go-pkg/v2/codes"
 	"github.com/reyhanmichiels/go-pkg/v2/errors"
 	"github.com/reyhanmichiels/go-pkg/v2/query"
@@ -95,40 +96,22 @@ func (a *attendance) createSQL(ctx context.Context, inputParam entity.Attendance
 
 	a.log.Debug(ctx, fmt.Sprintf("create attendance with body: %v", inputParam))
 
-	res, err := a.db.NamedExec(ctx, "iNewAttendance", insertAttendance, inputParam)
+	stmt, err := a.db.PrepareNamed(ctx, "iNewAttendance", insertAttendance)
+	if err != nil {
+		return attendance, errors.NewWithCode(codes.CodeSQLPrepareStmt, err.Error())
+	}
+	defer stmt.Close()
 
-	mysqlErr := &mysql.MySQLError{}
-	// 1062 is the error code for duplicate entry
-	if err != nil && errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
+	err = stmt.Get(&attendance, inputParam)
+
+	pgErr := &pq.Error{}
+	if err != nil && errors.As(err, &pgErr) && pgErr.Code == entity.PSQLUniqueConstraintCode {
 		return attendance, errors.NewWithCode(codes.CodeSQLUniqueConstraint, err.Error())
 	} else if err != nil {
 		return attendance, errors.NewWithCode(codes.CodeSQLTxExec, err.Error())
 	}
 
-	rowCount, err := res.RowsAffected()
-	if err != nil {
-		return attendance, errors.NewWithCode(codes.CodeSQLNoRowsAffected, err.Error())
-	} else if rowCount < 1 {
-		return attendance, errors.NewWithCode(codes.CodeSQLNoRowsAffected, "no attendance created")
-	}
-
-	lastID, err := res.LastInsertId()
-	if err != nil {
-		return attendance, errors.NewWithCode(codes.CodeSQLNoRowsAffected, err.Error())
-	}
-
 	a.log.Debug(ctx, fmt.Sprintf("success create attendance with body: %v", inputParam))
-
-	// Construct the returned attendance object based on input parameters
-	attendance = entity.Attendance{
-		ID:                 lastID,
-		AttendancePeriodID: inputParam.AttendancePeriodID,
-		UserID:             inputParam.UserID,
-		AttendanceDate:     inputParam.AttendanceDate,
-		Status:             1,
-		CreatedAt:          inputParam.CreatedAt,
-		CreatedBy:          inputParam.CreatedBy,
-	}
 
 	return attendance, nil
 }

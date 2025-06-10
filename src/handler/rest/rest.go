@@ -18,6 +18,7 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/log"
 	"github.com/reyhanmichiels/go-pkg/v2/parser"
 	"github.com/reyhanmichiels/go-pkg/v2/rate_limiter"
+	"github.com/reyhanmichies/employee-payroll-service/src/business/entity"
 	"github.com/reyhanmichies/employee-payroll-service/src/business/usecase"
 	"github.com/reyhanmichies/employee-payroll-service/src/utils/config"
 )
@@ -130,7 +131,8 @@ func (r *rest) Register() {
 	r.http.Group("/public/v1/", commonPublicMiddlewares...)
 
 	// private api
-	r.http.Group("/v1/", commonPrivateMiddlewares...)
+	v1 := r.http.Group("/v1/", commonPrivateMiddlewares...)
+	v1.POST("/attendance-periods", r.AuthorizeScope(entity.RoleIDAdmin, r.CreateAttendancePeriod))
 }
 
 func (r *rest) Run() {

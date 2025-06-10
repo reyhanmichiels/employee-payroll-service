@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/lib/pq"
 	"github.com/reyhanmichiels/go-pkg/v2/codes"
 	"github.com/reyhanmichiels/go-pkg/v2/errors"
 	"github.com/reyhanmichiels/go-pkg/v2/query"
@@ -95,40 +96,23 @@ func (r *reimbursement) createSQL(ctx context.Context, inputParam entity.Reimbur
 
 	r.log.Debug(ctx, fmt.Sprintf("create reimbursement with body: %v", inputParam))
 
-	res, err := r.db.NamedExec(ctx, "iNewReimbursement", insertReimbursement, inputParam)
+	stmt, err := r.db.PrepareNamed(ctx, "iNewReimbursement", insertReimbursement)
+	if err != nil {
+		return reimbursement, errors.NewWithCode(codes.CodeSQLPrepareStmt, err.Error())
+	}
+	defer stmt.Close()
 
-	mysqlErr := &mysql.MySQLError{}
-	// 1062 is the error code for duplicate entry
-	if err != nil && errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
+	err = stmt.Get(&reimbursement, inputParam)
+
+	pgErr := &pq.Error{}
+	// 23505 is the PostgreSQL error code for unique violation
+	if err != nil && errors.As(err, &pgErr) && pgErr.Code == entity.PSQLUniqueConstraintCode {
 		return reimbursement, errors.NewWithCode(codes.CodeSQLUniqueConstraint, err.Error())
 	} else if err != nil {
 		return reimbursement, errors.NewWithCode(codes.CodeSQLTxExec, err.Error())
 	}
 
-	rowCount, err := res.RowsAffected()
-	if err != nil {
-		return reimbursement, errors.NewWithCode(codes.CodeSQLNoRowsAffected, err.Error())
-	} else if rowCount < 1 {
-		return reimbursement, errors.NewWithCode(codes.CodeSQLNoRowsAffected, "no reimbursement created")
-	}
-
-	lastID, err := res.LastInsertId()
-	if err != nil {
-		return reimbursement, errors.NewWithCode(codes.CodeSQLNoRowsAffected, err.Error())
-	}
-
 	r.log.Debug(ctx, fmt.Sprintf("success create reimbursement with body: %v", inputParam))
-
-	// Construct the returned reimbursement object based on input parameters
-	reimbursement = entity.Reimbursement{
-		ID:          lastID,
-		UserID:      inputParam.UserID,
-		Description: inputParam.Description,
-		Amount:      inputParam.Amount,
-		Status:      1,
-		CreatedAt:   inputParam.CreatedAt,
-		CreatedBy:   inputParam.CreatedBy,
-	}
 
 	return reimbursement, nil
 }
