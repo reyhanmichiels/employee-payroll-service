@@ -74,21 +74,22 @@ CREATE TABLE IF NOT EXISTS "overtimes"
 DROP TABLE IF EXISTS "reimbursements";
 CREATE TABLE IF NOT EXISTS "reimbursements"
 (
-    "id"            SERIAL PRIMARY KEY,
-    "fk_user_id"    INT         NOT NULL,
-    "description"   TEXT        NOT NULL,
-    "amount"        DECIMAL     NOT NULL,
-    "approved_date" DATE,
-    "approved_by"   INT,
+    "id"                 SERIAL PRIMARY KEY,
+    "fk_user_id"         INT         NOT NULL,
+    "description"        TEXT        NOT NULL,
+    "amount"             DECIMAL     NOT NULL,
+    "reimbursement_date" DATE        NOT NULL,
+    "approved_date"      DATE,
+    "approved_by"        INT,
 
     -- Utility columns
-    "status"        SMALLINT    NOT NULL DEFAULT 1,
-    "flag"          INT         NOT NULL DEFAULT 0,
-    "meta"          VARCHAR(255),
-    "created_at"    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "created_by"    INT,
-    "updated_at"    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_by"    INT,
-    "deleted_at"    TIMESTAMPTZ,
-    "deleted_by"    INT
+    "status"             SMALLINT    NOT NULL DEFAULT 1,
+    "flag"               INT         NOT NULL DEFAULT 0,
+    "meta"               VARCHAR(255),
+    "created_at"         TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by"         INT,
+    "updated_at"         TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_by"         INT,
+    "deleted_at"         TIMESTAMPTZ,
+    "deleted_by"         INT
 );
