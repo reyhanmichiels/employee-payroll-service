@@ -132,7 +132,12 @@ func (r *rest) Register() {
 
 	// private api
 	v1 := r.http.Group("/v1/", commonPrivateMiddlewares...)
+
+	// attendance period
 	v1.POST("/attendance-periods", r.AuthorizeScope(entity.RoleIDAdmin, r.CreateAttendancePeriod))
+
+	// attendance
+	v1.POST("/attendances", r.SubmitAttendance)
 }
 
 func (r *rest) Run() {
