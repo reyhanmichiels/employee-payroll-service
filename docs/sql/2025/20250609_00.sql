@@ -37,11 +37,11 @@ CREATE TABLE IF NOT EXISTS "attendances"
     "status"                  SMALLINT  NOT NULL DEFAULT 1,
     "flag"                    INT       NOT NULL DEFAULT 0,
     "meta"                    VARCHAR(255),
-    "created_at"              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at"              TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_by"              INT,
-    "updated_at"              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at"              TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_by"              INT,
-    "deleted_at"              TIMESTAMP,
+    "deleted_at"              TIMESTAMPTZ,
     "deleted_by"              INT,
 
     CONSTRAINT unique_user_date UNIQUE ("fk_user_id", "attendance_date")
