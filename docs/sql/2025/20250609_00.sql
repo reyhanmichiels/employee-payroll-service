@@ -1,20 +1,23 @@
+DROP TYPE IF EXISTS period_status_enum;
+CREATE TYPE period_status_enum AS ENUM ('UPCOMING', 'OPEN', 'CLOSED', 'PROCESSING', 'PROCESSED');
+
 DROP TABLE IF EXISTS "attendance_periods";
 CREATE TABLE IF NOT EXISTS "attendance_periods"
 (
     "id"            SERIAL PRIMARY KEY,
     "start_date"    DATE        NOT NULL,
     "end_date"      DATE        NOT NULL,
-    "period_status" VARCHAR(50) NOT NULL,
+    "period_status" period_status_enum NOT NULL DEFAULT 'UPCOMING',
 
     -- Utility columns
     "status"        SMALLINT    NOT NULL DEFAULT 1,
     "flag"          INT         NOT NULL DEFAULT 0,
     "meta"          VARCHAR(255),
-    "created_at"    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at"    TIMESTAMPTZ   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_by"    INT,
-    "updated_at"    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at"    TIMESTAMPTZ   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_by"    INT,
-    "deleted_at"    TIMESTAMP,
+    "deleted_at"    TIMESTAMPTZ,
     "deleted_by"    INT,
 
     CONSTRAINT payroll_periods_no_overlap
@@ -58,11 +61,11 @@ CREATE TABLE IF NOT EXISTS "overtimes"
     "status"        SMALLINT  NOT NULL DEFAULT 1,
     "flag"          INT       NOT NULL DEFAULT 0,
     "meta"          VARCHAR(255),
-    "created_at"    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at"    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_by"    INT,
-    "updated_at"    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at"    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_by"    INT,
-    "deleted_at"    TIMESTAMP,
+    "deleted_at"    TIMESTAMPTZ,
     "deleted_by"    INT
 );
 
@@ -80,10 +83,10 @@ CREATE TABLE IF NOT EXISTS "reimbursements"
     "status"        SMALLINT  NOT NULL DEFAULT 1,
     "flag"          INT       NOT NULL DEFAULT 0,
     "meta"          VARCHAR(255),
-    "created_at"    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at"    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_by"    INT,
-    "updated_at"    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at"    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_by"    INT,
-    "deleted_at"    TIMESTAMP,
+    "deleted_at"    TIMESTAMPTZ,
     "deleted_by"    INT
 );
