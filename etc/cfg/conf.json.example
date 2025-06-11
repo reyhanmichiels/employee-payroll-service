@@ -1,0 +1,125 @@
+{
+  "Meta": {
+    "Title": "Employee Payroll System",
+    "Description": "Service for managing employee payroll",
+    "Host": "127.0.0.1",
+    "Basepath": "/",
+    "Version": ""
+  },
+  "Gin": {
+    "Host": "127.0.0.1",
+    "Port": "8080",
+    "Mode": "debug",
+    "Timeout": "100s",
+    "ShutdownTimeout": "10s",
+    "LogRequest": "true",
+    "LogResponse": "true",
+    "CORS": {
+      "Mode": "allowall"
+    },
+    "Swagger": {
+      "Basicauth": {
+        "Username": "swagger",
+        "Password": "swagger"
+      },
+      "Enabled": "true",
+      "Path": "/swagger"
+    },
+    "Dummy": {
+      "Enabled": "true",
+      "Path": "/dummy"
+    }
+  },
+  "Log": {
+    "Level": "debug"
+  },
+  "SQL": {
+    "LogQuery": "true",
+    "Driver": "postgres",
+    "Follower": {
+      "Host": "127.0.0.1",
+      "Port": "5432",
+      "DB": "employee_payroll_db",
+      "User": "root",
+      "Password": "password",
+      "SSL": false,
+      "Schema": null,
+      "Options": {
+        "MaxLifeTime": "",
+        "MaxIdle": "25",
+        "MaxOpen": "25"
+      }
+    },
+    "Leader": {
+      "Host": "127.0.0.1",
+      "Port": "5432",
+      "DB": "employee_payroll_db",
+      "User": "root",
+      "Password": "password",
+      "SSL": false,
+      "Schema": null,
+      "Options": {
+        "MaxLifeTime": "",
+        "MaxIdle": "25",
+        "MaxOpen": "25"
+      }
+    }
+  },
+  "Auth": {
+    "AccessTokenExpireTime": "24h",
+    "RefreshTokenExpireTime": "60m",
+    "AccessTokenType": "access_token",
+    "RefreshTokenType": "refresh_token",
+    "SigningKey": "sbvkjs dv sk vkjsds"
+  },
+  "Redis": {
+    "Protocol": "",
+    "Host": "localhost",
+    "Port": "6379",
+    "Username": "",
+    "Password": "",
+    "DefaultTTL": "",
+    "TLS": {
+      "Enabled": "",
+      "InsecureSkipVerify": ""
+    }
+  },
+  "Translator": {
+    "FallbackLanguageID": "en",
+    "SupportedLanguageIDs": [
+      "id"
+    ],
+    "TranslationDir": "./docs/translation"
+  },
+  "RateLimiter": {
+    "Enabled": "true",
+    "Period": "1s",
+    "Limit": "100"
+  },
+  "Parser": {
+    "JSONOptions": {
+      "Config": "default",
+      "IndentionStep": "0",
+      "MarshalFloatWith6Digits": false,
+      "EscapeHTML": true,
+      "SortMapKeys": false,
+      "UseNumber": true,
+      "DisallowUnknownFields": false,
+      "TagKey": "json",
+      "OnlyTaggedField": true,
+      "ValidateJSONRawMessage": true,
+      "ObjectFieldMustBeSimpleString": false,
+      "CasesenSitive": true
+    }
+  },
+  "RabbitMQ": {
+    "Host": "localhost",
+    "Port": 5672,
+    "Username": "guest",
+    "Password": "guest",
+    "SSL": false,
+    "Options": {
+      "ReconnectDelay": "10s"
+    }
+  }
+}
