@@ -744,3 +744,297 @@ func Test_attendancePeriod_GeneratePayslip(t *testing.T) {
 		})
 	}
 }
+
+func Test_attendancePeriod_GeneratePayslipSummary(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUserDom := mock_user.NewMockInterface(ctrl)
+	mockAttendancePeriodDom := mock_attendance_period.NewMockInterface(ctrl)
+	mockPayslipDom := mock_payslip.NewMockInterface(ctrl)
+
+	uc := Init(InitParam{
+		User:             mockUserDom,
+		AttendancePeriod: mockAttendancePeriodDom,
+		Payslip:          mockPayslipDom,
+	})
+
+	// Set up test data
+	mockAttendancePeriodID := int64(1)
+	mockUsers := []entity.User{
+		{
+			ID:         1,
+			Name:       "User 1",
+			BaseSalary: 10000,
+		},
+		{
+			ID:         2,
+			Name:       "User 2",
+			BaseSalary: 12000,
+		},
+	}
+
+	mockPayslips := []entity.Payslip{
+		{
+			ID:                     1,
+			UserID:                 1,
+			AttendancePeriodID:     mockAttendancePeriodID,
+			BasePayComponent:       9000,
+			OvertimeComponent:      500,
+			ReimbursementComponent: 300,
+			TotalTakeHomePay:       9800,
+		},
+		{
+			ID:                     2,
+			UserID:                 2,
+			AttendancePeriodID:     mockAttendancePeriodID,
+			BasePayComponent:       12000,
+			OvertimeComponent:      0,
+			ReimbursementComponent: 200,
+			TotalTakeHomePay:       12200,
+		},
+	}
+
+	expectedSummary := dto.PayslipSummary{
+		TotalEmployeeTakeHomePay: 22000,
+		TotalEmployee:            int64(2),
+		EmployeePayouts: []dto.EmployeePayout{
+			{
+				ID:          1,
+				Name:        "User 1",
+				TakeHomePay: 9800,
+			},
+			{
+				ID:          2,
+				Name:        "User 2",
+				TakeHomePay: 12200,
+			},
+		},
+	}
+
+	tests := []struct {
+		name               string
+		attendancePeriodID int64
+		mockFunc           func()
+		want               dto.PayslipSummary
+		wantErr            bool
+		errCode            string
+	}{
+		{
+			name:               "Success",
+			attendancePeriodID: mockAttendancePeriodID,
+			mockFunc: func() {
+				mockUserDom.EXPECT().GetList(
+					gomock.Any(),
+					entity.UserParam{
+						RoleID: entity.RoleIDUser,
+						QueryOption: query.Option{
+							IsActive:     true,
+							DisableLimit: true,
+						},
+					},
+				).Return(mockUsers, nil, nil)
+
+				mockPayslipDom.EXPECT().GetList(
+					gomock.Any(),
+					entity.PayslipParam{
+						AttendancePeriodID: mockAttendancePeriodID,
+						QueryOption: query.Option{
+							IsActive:     true,
+							DisableLimit: true,
+						},
+					},
+				).Return(mockPayslips, nil, nil)
+			},
+			want:    expectedSummary,
+			wantErr: false,
+		},
+		{
+			name:               "Failed GetList Users",
+			attendancePeriodID: mockAttendancePeriodID,
+			mockFunc: func() {
+				mockUserDom.EXPECT().GetList(
+					gomock.Any(),
+					entity.UserParam{
+						RoleID: entity.RoleIDUser,
+						QueryOption: query.Option{
+							IsActive:     true,
+							DisableLimit: true,
+						},
+					},
+				).Return(nil, nil, assert.AnError)
+			},
+			want:    dto.PayslipSummary{},
+			wantErr: true,
+		},
+		{
+			name:               "Failed getUserIDToPayslip",
+			attendancePeriodID: mockAttendancePeriodID,
+			mockFunc: func() {
+				mockUserDom.EXPECT().GetList(
+					gomock.Any(),
+					entity.UserParam{
+						RoleID: entity.RoleIDUser,
+						QueryOption: query.Option{
+							IsActive:     true,
+							DisableLimit: true,
+						},
+					},
+				).Return(mockUsers, nil, nil)
+
+				mockPayslipDom.EXPECT().GetList(
+					gomock.Any(),
+					entity.PayslipParam{
+						AttendancePeriodID: mockAttendancePeriodID,
+						QueryOption: query.Option{
+							IsActive:     true,
+							DisableLimit: true,
+						},
+					},
+				).Return(nil, nil, assert.AnError)
+			},
+			want:    dto.PayslipSummary{},
+			wantErr: true,
+		},
+		{
+			name:               "No Payslips Found",
+			attendancePeriodID: mockAttendancePeriodID,
+			mockFunc: func() {
+				mockUserDom.EXPECT().GetList(
+					gomock.Any(),
+					entity.UserParam{
+						RoleID: entity.RoleIDUser,
+						QueryOption: query.Option{
+							IsActive:     true,
+							DisableLimit: true,
+						},
+					},
+				).Return(mockUsers, nil, nil)
+
+				mockPayslipDom.EXPECT().GetList(
+					gomock.Any(),
+					entity.PayslipParam{
+						AttendancePeriodID: mockAttendancePeriodID,
+						QueryOption: query.Option{
+							IsActive:     true,
+							DisableLimit: true,
+						},
+					},
+				).Return([]entity.Payslip{}, nil, nil)
+			},
+			want:    dto.PayslipSummary{},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockFunc()
+
+			got, err := uc.GeneratePayslipSummary(context.Background(), tt.attendancePeriodID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("attendancePeriod.GeneratePayslipSummary() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCode != "" {
+				assert.Equal(t, tt.errCode, errors.GetCode(err))
+			} else {
+				assert.Equal(t, tt.want, got)
+			}
+		})
+	}
+}
+
+func Test_attendancePeriod_GetCurrentAttendancePeriod(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAttendancePeriodDom := mock_attendance_period.NewMockInterface(ctrl)
+
+	uc := Init(InitParam{
+		AttendancePeriod: mockAttendancePeriodDom,
+	})
+
+	mockAttendancePeriod := entity.AttendancePeriod{
+		ID:           1,
+		StartDate:    null.DateFrom(time.Date(2023, 5, 1, 0, 0, 0, 0, time.UTC)),
+		EndDate:      null.DateFrom(time.Date(2023, 5, 31, 0, 0, 0, 0, time.UTC)),
+		PeriodStatus: entity.PeriodStatusOpen,
+	}
+
+	tests := []struct {
+		name     string
+		mockFunc func()
+		want     entity.AttendancePeriod
+		wantErr  bool
+		errCode  string
+	}{
+		{
+			name: "Success",
+			mockFunc: func() {
+				mockAttendancePeriodDom.EXPECT().Get(
+					gomock.Any(),
+					entity.AttendancePeriodParam{
+						PeriodStatus: entity.PeriodStatusOpen,
+						QueryOption: query.Option{
+							IsActive: true,
+						},
+					},
+				).Return(mockAttendancePeriod, nil)
+			},
+			want:    mockAttendancePeriod,
+			wantErr: false,
+		},
+		{
+			name: "No Open Attendance Period Found",
+			mockFunc: func() {
+				mockAttendancePeriodDom.EXPECT().Get(
+					gomock.Any(),
+					entity.AttendancePeriodParam{
+						PeriodStatus: entity.PeriodStatusOpen,
+						QueryOption: query.Option{
+							IsActive: true,
+						},
+					},
+				).Return(entity.AttendancePeriod{}, errors.NewWithCode(codes.CodeSQLRecordDoesNotExist, "record not found"))
+			},
+			want:    entity.AttendancePeriod{},
+			wantErr: true,
+		},
+		{
+			name: "Generic Error",
+			mockFunc: func() {
+				mockAttendancePeriodDom.EXPECT().Get(
+					gomock.Any(),
+					entity.AttendancePeriodParam{
+						PeriodStatus: entity.PeriodStatusOpen,
+						QueryOption: query.Option{
+							IsActive: true,
+						},
+					},
+				).Return(entity.AttendancePeriod{}, assert.AnError)
+			},
+			want:    entity.AttendancePeriod{},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockFunc()
+
+			got, err := uc.GetCurrentAttendancePeriod(context.Background())
+			if (err != nil) != tt.wantErr {
+				t.Errorf("attendancePeriod.GetCurrentAttendancePeriod() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCode != "" {
+				assert.Equal(t, tt.errCode, errors.GetCode(err))
+			} else {
+				assert.Equal(t, tt.want, got)
+			}
+		})
+	}
+}

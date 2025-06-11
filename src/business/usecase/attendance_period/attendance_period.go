@@ -32,6 +32,7 @@ type Interface interface {
 	GetCurrentAttendancePeriod(ctx context.Context) (entity.AttendancePeriod, error)
 	GeneratePayroll(ctx context.Context, attendancePeriodID int64) error
 	GeneratePayslip(ctx context.Context, attendancePeriodID int64) (dto.Payslip, error)
+	GeneratePayslipSummary(ctx context.Context, attendancePeriodID int64) (dto.PayslipSummary, error)
 
 	PubSubGeneratePayroll(ctx context.Context, message entity.PubSubMessage) error
 }
@@ -288,4 +289,81 @@ func (a *attendancePeriod) GeneratePayslip(ctx context.Context, attendancePeriod
 	res.Details = resDetails
 
 	return res, nil
+}
+
+func (a *attendancePeriod) GeneratePayslipSummary(ctx context.Context, attendancePeriodID int64) (dto.PayslipSummary, error) {
+	users, _, err := a.userDom.GetList(
+		ctx,
+		entity.UserParam{
+			RoleID: entity.RoleIDUser,
+			QueryOption: query.Option{
+				IsActive:     true,
+				DisableLimit: true,
+			},
+		},
+	)
+	if err != nil {
+		return dto.PayslipSummary{}, err
+	}
+
+	userIDToPayslip, err := a.getUserIDToPayslip(ctx, attendancePeriodID)
+	if err != nil {
+		return dto.PayslipSummary{}, err
+	}
+
+	if len(userIDToPayslip) == 0 {
+		return dto.PayslipSummary{}, errors.NewWithCode(codes.CodeNotFound, "no payslips found for the given attendance period")
+	}
+
+	totalTakeHomePay := 0.0
+	employeePayouts := []dto.EmployeePayout{}
+	for _, user := range users {
+		employeePayouts = append(
+			employeePayouts,
+			dto.EmployeePayout{
+				ID:          user.ID,
+				Name:        user.Name,
+				TakeHomePay: userIDToPayslip[user.ID].TotalTakeHomePay,
+			},
+		)
+		totalTakeHomePay += userIDToPayslip[user.ID].TotalTakeHomePay
+	}
+
+	res := dto.PayslipSummary{
+		TotalEmployeeTakeHomePay: totalTakeHomePay,
+		TotalEmployee:            int64(len(users)),
+		EmployeePayouts:          employeePayouts,
+	}
+
+	return res, nil
+}
+
+func (a *attendancePeriod) getUserIDToPayslip(
+	ctx context.Context,
+	attendancePeriodID int64,
+) (
+	map[int64]entity.Payslip,
+	error,
+) {
+	userIDToPayslips := make(map[int64]entity.Payslip)
+
+	payslips, _, err := a.payslipDom.GetList(
+		ctx,
+		entity.PayslipParam{
+			AttendancePeriodID: attendancePeriodID,
+			QueryOption: query.Option{
+				IsActive:     true,
+				DisableLimit: true,
+			},
+		},
+	)
+	if err != nil {
+		return userIDToPayslips, err
+	}
+
+	for _, payslip := range payslips {
+		userIDToPayslips[payslip.UserID] = payslip
+	}
+
+	return userIDToPayslips, nil
 }

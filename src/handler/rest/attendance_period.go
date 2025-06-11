@@ -105,3 +105,37 @@ func (r *rest) GeneratePayslip(ctx *gin.Context) {
 
 	r.httpRespSuccess(ctx, codes.CodeSuccess, data, nil)
 }
+
+// GeneratePayslipSummary godoc
+// @Summary Generate Payslip Summary
+// @Description Generate payslip summary for a specific attendance period
+// @Tags Attendance Period
+// @Security BearerAuth
+// @Param attendance_period_id path int true "Attendance Period ID"
+// @Produce json
+// @Success 200 {object} entity.HTTPResp{data=dto.PayslipSummary{}}
+// @Failure 400 {object} entity.HTTPResp{}
+// @Failure 404 {object} entity.HTTPResp{}
+// @Failure 500 {object} entity.HTTPResp{}
+// @Router /v1/admin/attendance-periods/{attendance_period_id}/payslip-summary [GET]
+func (r *rest) GeneratePayslipSummary(ctx *gin.Context) {
+	attendancePeriodIDStr := ctx.Param("attendance_period_id")
+	if attendancePeriodIDStr == "" {
+		r.httpRespError(ctx, errors.NewWithCode(codes.CodeBadRequest, "attendance_period_id is empty"))
+		return
+	}
+
+	attendancePeriodID, err := strconv.ParseInt(attendancePeriodIDStr, 10, 64)
+	if err != nil {
+		r.httpRespError(ctx, errors.NewWithCode(codes.CodeBadRequest, "attendance_period_id is not a valid number"))
+		return
+	}
+
+	data, err := r.uc.AttendancePeriod.GeneratePayslipSummary(ctx.Request.Context(), attendancePeriodID)
+	if err != nil {
+		r.httpRespError(ctx, err)
+		return
+	}
+
+	r.httpRespSuccess(ctx, codes.CodeSuccess, data, nil)
+}
