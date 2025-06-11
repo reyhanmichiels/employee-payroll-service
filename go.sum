@@ -133,7 +133,6 @@ github.com/rabbitmq/amqp091-go v1.10.0 h1:STpn5XsHlHGcecLmMFCtg7mqq0RnD+zFr4uzuk
 github.com/rabbitmq/amqp091-go v1.10.0/go.mod h1:Hy4jKW5kQART1u+JkDTF9YYOQUHXqMuhrgxOEeS7G4o=
 github.com/redis/go-redis/v9 v9.5.3 h1:fOAp1/uJG+ZtcITgZOfYFmTKPE7n4Vclj1wZFgRciUU=
 github.com/redis/go-redis/v9 v9.5.3/go.mod h1:hdY0cQFCN4fnSYT6TkisLufl/4W5UIXyv0b/CLO2V2M=
-github.com/reyhanmichiels/go-pkg/v2 v2.1.1/go.mod h1:FlH7rF7EXitK+dRNGYNjPLEdT3hbZmXHCgMYojpcFK0=
 github.com/reyhanmichiels/go-pkg/v2 v2.2.0 h1:DS0gau6gW/WsmwgBj+QZwrrNyXABfRddvTSAQtQ6ayA=
 github.com/reyhanmichiels/go-pkg/v2 v2.2.0/go.mod h1:1K6wmRnpTceqkAfCy2/iY3VCsSecYFuTs487HRLNC98=
 github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZVejAe8=

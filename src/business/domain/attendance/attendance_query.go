@@ -47,4 +47,16 @@ const (
 		UPDATE
 			attendances
 	`
+
+	countUserAttendance = `
+		SELECT
+			fk_user_id AS userID,
+			COUNT(*) AS attendanceCount
+		FROM
+		    attendances
+		WHERE
+		    fk_attendance_period_id = $1
+		GROUP BY 
+		    fk_user_id
+	`
 )

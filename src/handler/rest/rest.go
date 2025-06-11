@@ -134,7 +134,8 @@ func (r *rest) Register() {
 	v1 := r.http.Group("/v1/", commonPrivateMiddlewares...)
 
 	// attendance period
-	v1.POST("/attendance-periods", r.AuthorizeScope(entity.RoleIDAdmin, r.CreateAttendancePeriod))
+	v1.POST("/admin/attendance-periods", r.AuthorizeScope(entity.RoleIDAdmin, r.CreateAttendancePeriod))
+	v1.POST("/admin/attendance-periods/:attendance_period_id/payroll", r.AuthorizeScope(entity.RoleIDAdmin, r.GeneratePayroll))
 
 	// attendance
 	v1.POST("/attendances", r.SubmitAttendance)

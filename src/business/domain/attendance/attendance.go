@@ -15,6 +15,7 @@ import (
 type Interface interface {
 	Get(ctx context.Context, param entity.AttendanceParam) (entity.Attendance, error)
 	GetList(ctx context.Context, param entity.AttendanceParam) ([]entity.Attendance, *entity.Pagination, error)
+	CountUserAttendance(ctx context.Context, attendancePeriodID int64) (entity.UserAttendanceCount, error)
 	Create(ctx context.Context, param entity.AttendanceInputParam) (entity.Attendance, error)
 	Update(ctx context.Context, updateParam entity.AttendanceUpdateParam, selectParam entity.AttendanceParam) error
 }
@@ -127,4 +128,13 @@ func (a *attendance) Update(ctx context.Context, updateParam entity.AttendanceUp
 	}
 
 	return nil
+}
+
+func (a *attendance) CountUserAttendance(ctx context.Context, attendancePeriodID int64) (entity.UserAttendanceCount, error) {
+	userAttendancePeriod, err := a.countUserAttendanceSQL(ctx, attendancePeriodID)
+	if err != nil {
+		return userAttendancePeriod, err
+	}
+
+	return userAttendancePeriod, nil
 }

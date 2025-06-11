@@ -10,12 +10,14 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/hash"
 	"github.com/reyhanmichiels/go-pkg/v2/log"
 	"github.com/reyhanmichiels/go-pkg/v2/parser"
+	"github.com/reyhanmichiels/go-pkg/v2/pubsub/rabbitmq"
 	"github.com/reyhanmichiels/go-pkg/v2/rate_limiter"
 	"github.com/reyhanmichiels/go-pkg/v2/redis"
 	"github.com/reyhanmichiels/go-pkg/v2/sql"
 	"github.com/reyhanmichies/employee-payroll-service/src/business/domain"
 	"github.com/reyhanmichies/employee-payroll-service/src/business/usecase"
-	"github.com/reyhanmichies/employee-payroll-service/src/handler/pubsub"
+	"github.com/reyhanmichies/employee-payroll-service/src/handler/pubsub/publisher"
+	"github.com/reyhanmichies/employee-payroll-service/src/handler/pubsub/subscriber"
 	"github.com/reyhanmichies/employee-payroll-service/src/handler/rest"
 	"github.com/reyhanmichies/employee-payroll-service/src/utils/config"
 )
@@ -79,17 +81,23 @@ func main() {
 	// auth
 	auth := auth.Init(cfg.Auth, log)
 
-	// pubSub
-	pubSub := pubsub.Init(pubsub.InitParam{Log: log, MQConfig: cfg.RabbitMQ})
+	// init rabbitMQ
+	mq := rabbitmq.Init(cfg.RabbitMQ, log)
+
+	// init publisher
+	publisher := publisher.Init(publisher.InitParam{MQ: mq, Json: parser.JSONParser()})
 
 	// init usecase
-	uc := usecase.Init(usecase.InitParam{Dom: dom, Log: log, Json: parser.JSONParser(), Hash: hash, Auth: auth})
+	uc := usecase.Init(usecase.InitParam{Dom: dom, Log: log, Json: parser.JSONParser(), Hash: hash, Auth: auth, Publisher: publisher})
+
+	// init subscriber
+	subscriber := subscriber.Init(subscriber.InitParam{Log: log, MQ: mq, Json: parser.JSONParser(), UC: uc})
 
 	// init http server
 	r := rest.Init(rest.InitParam{Uc: uc, GinConfig: cfg.Gin, Log: log, RateLimiter: rateLimiter, Json: parser.JSONParser(), Auth: auth})
 
 	// subscribe to pubSub events
-	pubSub.Subscribe()
+	subscriber.Subscribe()
 
 	// run http server
 	r.Run()

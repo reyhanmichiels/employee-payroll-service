@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/reyhanmichiels/go-pkg/v2/null"
 	"github.com/reyhanmichiels/go-pkg/v2/query"
 )
@@ -21,6 +23,9 @@ const (
 
 	// PeriodStatusProcessed indicates that the attendance period has been fully processed.
 	PeriodStatusProcessed = "PROCESSED"
+
+	// PeriodStatusProcessError indicates that there was an error during the processing of the attendance period.
+	PeriodStatusProcessError = "PROCESS_ERROR"
 )
 
 type AttendancePeriod struct {
@@ -50,12 +55,13 @@ type AttendancePeriodInputParam struct {
 }
 
 type AttendancePeriodUpdateParam struct {
-	StartDate    null.Date  `db:"start_date" json:"startDate"`
-	EndDate      null.Date  `db:"end_date" json:"endDate"`
-	PeriodStatus string     `db:"period_status" json:"periodStatus"`
-	Status       null.Int64 `db:"status" json:"status"`
-	UpdatedAt    null.Time  `db:"updated_at" json:"-"`
-	UpdatedBy    null.Int64 `db:"updated_by" json:"-"`
+	StartDate           null.Date  `db:"start_date" json:"startDate"`
+	EndDate             null.Date  `db:"end_date" json:"endDate"`
+	PeriodStatus        string     `db:"period_status" json:"periodStatus"`
+	PayrollProcessError string     `db:"payroll_process_error" json:"payrollProcessError"`
+	Status              null.Int64 `db:"status" json:"status"`
+	UpdatedAt           null.Time  `db:"updated_at" json:"-"`
+	UpdatedBy           null.Int64 `db:"updated_by" json:"-"`
 }
 
 type AttendancePeriodParam struct {
@@ -64,4 +70,19 @@ type AttendancePeriodParam struct {
 	QueryOption  query.Option
 	BypassCache  bool
 	PaginationParam
+}
+
+func (a *AttendancePeriod) TotalWorkingDays() int64 {
+	var workdayCount int64
+
+	for d := a.StartDate.Time; !d.After(a.EndDate.Time); d = d.AddDate(0, 0, 1) {
+		weekday := d.Weekday()
+
+		// Check if the day is not a weekend day.
+		if weekday != time.Saturday && weekday != time.Sunday {
+			workdayCount++
+		}
+	}
+
+	return workdayCount
 }

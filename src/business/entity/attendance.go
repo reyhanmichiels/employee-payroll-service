@@ -45,3 +45,5 @@ type AttendanceParam struct {
 	BypassCache bool
 	PaginationParam
 }
+
+type UserAttendanceCount map[int64]int64

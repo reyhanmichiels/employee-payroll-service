@@ -17,6 +17,7 @@ type User struct {
 	Name         string      `db:"name" json:"name"`
 	Email        string      `db:"email" json:"email"`
 	Password     string      `db:"password" json:"password"`
+	BaseSalary   float64     `db:"base_salary" json:"baseSalary"`
 	RefreshToken null.String `db:"refresh_token" json:"refreshToken" swaggertype:"string"`
 	Status       int64       `db:"status" json:"status"`
 	Flag         int64       `db:"flag" json:"flag,omitempty"`
@@ -50,6 +51,7 @@ type UserParam struct {
 	ID           int64  `db:"id" uri:"user_id" param:"id"`
 	Email        string `db:"email" param:"email"`
 	RefreshToken string `db:"refresh_token" param:"refresh_token"`
+	RoleID       int64  `db:"fk_role_id" param:"role_id"`
 	PaginationParam
 	QueryOption query.Option
 	BypassCache bool

@@ -46,9 +46,11 @@ type OvertimeUpdateParam struct {
 }
 
 type OvertimeParam struct {
-	ID          int64 `db:"id" param:"id" json:"id"`
-	QueryOption query.Option
-	BypassCache bool
+	ID              int64     `db:"id" param:"id" json:"id"`
+	ApprovedDateGTE null.Date `db:"approved_date" param:"approved_date__gte"`
+	ApprovedDateLTE null.Date `db:"approved_date" param:"approved_date__lte"`
+	QueryOption     query.Option
+	BypassCache     bool
 	PaginationParam
 }
 
