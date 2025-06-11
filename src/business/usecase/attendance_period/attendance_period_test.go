@@ -1038,3 +1038,201 @@ func Test_attendancePeriod_GetCurrentAttendancePeriod(t *testing.T) {
 		})
 	}
 }
+
+func Test_attendancePeriod_ValidateAttendancePeriodScheduler(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAttendancePeriodDom := mock_attendance_period.NewMockInterface(ctrl)
+
+	uc := Init(InitParam{
+		AttendancePeriod: mockAttendancePeriodDom,
+	})
+
+	mockTime := time.Date(2023, 6, 1, 10, 0, 0, 0, time.UTC)
+	Now = func() time.Time {
+		return mockTime
+	}
+	defer func() { Now = time.Now }()
+
+	currentTime := null.TimeFrom(mockTime)
+
+	tests := []struct {
+		name     string
+		mockFunc func()
+		wantErr  bool
+	}{
+		{
+			name: "Success - Close Period and Open Period Exists",
+			mockFunc: func() {
+				// First update - Close expired periods
+				mockAttendancePeriodDom.EXPECT().Update(
+					gomock.Any(),
+					entity.AttendancePeriodUpdateParam{
+						PeriodStatus: entity.PeriodStatusClosed,
+						UpdatedAt:    currentTime,
+						UpdatedBy:    null.Int64From(-1),
+					},
+					entity.AttendancePeriodParam{
+						PeriodStatus: entity.PeriodStatusOpen,
+						EndDateLT:    null.DateFrom(currentTime.Time),
+						QueryOption: query.Option{
+							IsActive: true,
+						},
+					},
+				).Return(nil)
+
+				// Check if open period exists
+				mockAttendancePeriodDom.EXPECT().Get(
+					gomock.Any(),
+					entity.AttendancePeriodParam{
+						PeriodStatus: entity.PeriodStatusOpen,
+						QueryOption: query.Option{
+							IsActive: true,
+						},
+					},
+				).Return(entity.AttendancePeriod{}, nil)
+			},
+			wantErr: false,
+		},
+		{
+			name: "Success - Close Period Error With NoRowsAffected",
+			mockFunc: func() {
+				// First update with no rows affected
+				mockAttendancePeriodDom.EXPECT().Update(
+					gomock.Any(),
+					gomock.Any(),
+					gomock.Any(),
+				).Return(errors.NewWithCode(codes.CodeSQLNoRowsAffected, "no rows affected"))
+
+				// Check if open period exists
+				mockAttendancePeriodDom.EXPECT().Get(
+					gomock.Any(),
+					gomock.Any(),
+				).Return(entity.AttendancePeriod{}, nil)
+			},
+			wantErr: false,
+		},
+		{
+			name: "Success - No Open Period, Update Upcoming Period",
+			mockFunc: func() {
+				// First update - Close expired periods
+				mockAttendancePeriodDom.EXPECT().Update(
+					gomock.Any(),
+					gomock.Any(),
+					gomock.Any(),
+				).Return(nil)
+
+				// Check if open period exists - none found
+				mockAttendancePeriodDom.EXPECT().Get(
+					gomock.Any(),
+					gomock.Any(),
+				).Return(entity.AttendancePeriod{}, errors.NewWithCode(codes.CodeSQLRecordDoesNotExist, "no open period"))
+
+				// Update upcoming periods to open
+				mockAttendancePeriodDom.EXPECT().Update(
+					gomock.Any(),
+					entity.AttendancePeriodUpdateParam{
+						PeriodStatus: entity.PeriodStatusOpen,
+						UpdatedAt:    currentTime,
+						UpdatedBy:    null.Int64From(-1),
+					},
+					entity.AttendancePeriodParam{
+						PeriodStatus: entity.PeriodStatusUpcoming,
+						StartDateLTE: null.DateFrom(currentTime.Time),
+						QueryOption: query.Option{
+							IsActive: true,
+						},
+					},
+				).Return(nil)
+			},
+			wantErr: false,
+		},
+		{
+			name: "Success - No Open Period, Update Upcoming Period With NoRowsAffected",
+			mockFunc: func() {
+				// First update
+				mockAttendancePeriodDom.EXPECT().Update(
+					gomock.Any(),
+					gomock.Any(),
+					gomock.Any(),
+				).Return(nil)
+
+				// Check if open period exists - none found
+				mockAttendancePeriodDom.EXPECT().Get(
+					gomock.Any(),
+					gomock.Any(),
+				).Return(entity.AttendancePeriod{}, errors.NewWithCode(codes.CodeSQLRecordDoesNotExist, "no open period"))
+
+				// Update upcoming periods - no rows affected
+				mockAttendancePeriodDom.EXPECT().Update(
+					gomock.Any(),
+					gomock.Any(),
+					gomock.Any(),
+				).Return(errors.NewWithCode(codes.CodeSQLNoRowsAffected, "no rows affected"))
+			},
+			wantErr: false,
+		},
+		{
+			name: "Error - Close Period Generic Error",
+			mockFunc: func() {
+				mockAttendancePeriodDom.EXPECT().Update(
+					gomock.Any(),
+					gomock.Any(),
+					gomock.Any(),
+				).Return(errors.NewWithCode(codes.CodeSQLTxExec, "db error"))
+			},
+			wantErr: true,
+		},
+		{
+			name: "Error - Get Open Period Generic Error",
+			mockFunc: func() {
+				mockAttendancePeriodDom.EXPECT().Update(
+					gomock.Any(),
+					gomock.Any(),
+					gomock.Any(),
+				).Return(nil)
+
+				mockAttendancePeriodDom.EXPECT().Get(
+					gomock.Any(),
+					gomock.Any(),
+				).Return(entity.AttendancePeriod{}, errors.NewWithCode(codes.CodeSQLTxExec, "db error"))
+			},
+			wantErr: true,
+		},
+		{
+			name: "Error - Update Upcoming Period Generic Error",
+			mockFunc: func() {
+				mockAttendancePeriodDom.EXPECT().Update(
+					gomock.Any(),
+					gomock.Any(),
+					gomock.Any(),
+				).Return(nil)
+
+				mockAttendancePeriodDom.EXPECT().Get(
+					gomock.Any(),
+					gomock.Any(),
+				).Return(entity.AttendancePeriod{}, errors.NewWithCode(codes.CodeSQLRecordDoesNotExist, "no open period"))
+
+				mockAttendancePeriodDom.EXPECT().Update(
+					gomock.Any(),
+					gomock.Any(),
+					gomock.Any(),
+				).Return(errors.NewWithCode(codes.CodeSQLTxExec, "db error"))
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockFunc()
+
+			err := uc.ValidateAttendancePeriodScheduler(context.Background())
+			if (err != nil) != tt.wantErr {
+				t.Errorf("attendancePeriod.ValidateAttendancePeriodScheduler() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}

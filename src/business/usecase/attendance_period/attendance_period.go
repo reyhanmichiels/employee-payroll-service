@@ -35,6 +35,8 @@ type Interface interface {
 	GeneratePayslipSummary(ctx context.Context, attendancePeriodID int64) (dto.PayslipSummary, error)
 
 	PubSubGeneratePayroll(ctx context.Context, message entity.PubSubMessage) error
+
+	ValidateAttendancePeriodScheduler(ctx context.Context) error
 }
 
 type attendancePeriod struct {
@@ -366,4 +368,60 @@ func (a *attendancePeriod) getUserIDToPayslip(
 	}
 
 	return userIDToPayslips, nil
+}
+
+func (a *attendancePeriod) ValidateAttendancePeriodScheduler(ctx context.Context) error {
+	currentTime := null.TimeFrom(Now())
+	err := a.attendancePeriodDom.Update(
+		ctx,
+		entity.AttendancePeriodUpdateParam{
+			PeriodStatus: entity.PeriodStatusClosed,
+			UpdatedAt:    currentTime,
+			UpdatedBy:    null.Int64From(-1),
+		},
+		entity.AttendancePeriodParam{
+			PeriodStatus: entity.PeriodStatusOpen,
+			EndDateLT:    null.DateFrom(currentTime.Time),
+			QueryOption: query.Option{
+				IsActive: true,
+			},
+		},
+	)
+	if err != nil && errors.GetCode(err) != codes.CodeSQLNoRowsAffected {
+		return err
+	}
+
+	_, err = a.attendancePeriodDom.Get(
+		ctx,
+		entity.AttendancePeriodParam{
+			PeriodStatus: entity.PeriodStatusOpen,
+			QueryOption: query.Option{
+				IsActive: true,
+			},
+		},
+	)
+	if err != nil && errors.GetCode(err) != codes.CodeSQLRecordDoesNotExist {
+		return err
+	} else if err != nil && errors.GetCode(err) == codes.CodeSQLRecordDoesNotExist {
+		err = a.attendancePeriodDom.Update(
+			ctx,
+			entity.AttendancePeriodUpdateParam{
+				PeriodStatus: entity.PeriodStatusOpen,
+				UpdatedAt:    currentTime,
+				UpdatedBy:    null.Int64From(-1),
+			},
+			entity.AttendancePeriodParam{
+				PeriodStatus: entity.PeriodStatusUpcoming,
+				StartDateLTE: null.DateFrom(currentTime.Time),
+				QueryOption: query.Option{
+					IsActive: true,
+				},
+			},
+		)
+		if err != nil && errors.GetCode(err) != codes.CodeSQLNoRowsAffected {
+			return err
+		}
+	}
+
+	return nil
 }
