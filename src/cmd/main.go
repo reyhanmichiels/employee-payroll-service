@@ -19,6 +19,7 @@ import (
 	"github.com/reyhanmichies/employee-payroll-service/src/handler/pubsub/publisher"
 	"github.com/reyhanmichies/employee-payroll-service/src/handler/pubsub/subscriber"
 	"github.com/reyhanmichies/employee-payroll-service/src/handler/rest"
+	"github.com/reyhanmichies/employee-payroll-service/src/handler/scheduler"
 	"github.com/reyhanmichies/employee-payroll-service/src/utils/config"
 )
 
@@ -90,11 +91,22 @@ func main() {
 	// init usecase
 	uc := usecase.Init(usecase.InitParam{Dom: dom, Log: log, Json: parser.JSONParser(), Hash: hash, Auth: auth, Publisher: publisher})
 
+	// init scheduler
+	sch := scheduler.Init(scheduler.InitParam{
+		MetaConf: cfg.Meta,
+		Log:      log,
+		Auth:     auth,
+		Uc:       uc,
+	})
+
 	// init subscriber
 	subscriber := subscriber.Init(subscriber.InitParam{Log: log, MQ: mq, Json: parser.JSONParser(), UC: uc})
 
 	// init http server
 	r := rest.Init(rest.InitParam{Uc: uc, GinConfig: cfg.Gin, Log: log, RateLimiter: rateLimiter, Json: parser.JSONParser(), Auth: auth})
+
+	// run scheduler
+	sch.Run()
 
 	// subscribe to pubSub events
 	subscriber.Subscribe()

@@ -65,8 +65,10 @@ type AttendancePeriodUpdateParam struct {
 }
 
 type AttendancePeriodParam struct {
-	ID           int64  `db:"id" param:"id" json:"id"`
-	PeriodStatus string `db:"period_status" param:"period_status" json:"periodStatus"`
+	ID           int64     `db:"id" param:"id" json:"id"`
+	PeriodStatus string    `db:"period_status" param:"period_status" json:"periodStatus"`
+	EndDateLT    null.Date `db:"end_date" param:"end_date__lt" json:"endDate"`
+	StartDateLTE null.Date `db:"start_date" param:"start_date__lte" json:"startDate"`
 	QueryOption  query.Option
 	BypassCache  bool
 	PaginationParam

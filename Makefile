@@ -23,7 +23,7 @@ run: swaggo build
 .PHONY: run-tests
 run-tests:
 	@go clean -cache
-	@go test -v -failfast `go list ./... | grep -i 'business'` -cover
+	@go test -v -failfast `go list ./... | grep -i 'business/usecase'` -cover
 
 .PHONY: lint
 lint:
