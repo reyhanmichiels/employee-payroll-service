@@ -29,6 +29,7 @@ const (
 		 	name,
 		 	email,
 		 	password,
+		 	base_salary,
 			status,
 			flag,
 			meta,

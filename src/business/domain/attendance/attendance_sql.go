@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
 	"github.com/reyhanmichiels/go-pkg/v2/codes"
 	"github.com/reyhanmichiels/go-pkg/v2/errors"
@@ -126,9 +125,8 @@ func (a *attendance) updateSQL(ctx context.Context, updateParam entity.Attendanc
 	}
 
 	res, err := a.db.Exec(ctx, "uAttendance", updateAttendance+queryUpdate, args...)
-	mysqlErr := &mysql.MySQLError{}
-	// 1062 is the error code for duplicate entry
-	if err != nil && errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
+	pgErr := &pq.Error{}
+	if err != nil && errors.As(err, &pgErr) && pgErr.Code == entity.PSQLUniqueConstraintCode {
 		return errors.NewWithCode(codes.CodeSQLUniqueConstraint, err.Error())
 	} else if err != nil {
 		return errors.NewWithCode(codes.CodeSQLTxExec, err.Error())
@@ -144,4 +142,32 @@ func (a *attendance) updateSQL(ctx context.Context, updateParam entity.Attendanc
 	a.log.Debug(ctx, fmt.Sprintf("success update attendance with body: %v", updateParam))
 
 	return nil
+}
+
+func (a *attendance) countUserAttendanceSQL(ctx context.Context, attendancePeriodID int64) (entity.UserAttendanceCount, error) {
+	userAttendanceCount := make(entity.UserAttendanceCount)
+
+	rows, err := a.db.Query(ctx, "cUserAttendance", countUserAttendance, attendancePeriodID)
+	if err != nil && !errors.Is(err, sql.ErrNotFound) {
+		return userAttendanceCount, errors.NewWithCode(codes.CodeSQLRead, err.Error())
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			userID          int64
+			attendanceCount int64
+		)
+
+		err := rows.Scan(&userID, &attendanceCount)
+		if err != nil {
+			a.log.Error(ctx, errors.NewWithCode(codes.CodeSQLRowScan, err.Error()))
+			continue
+		}
+
+		userAttendanceCount[userID] = attendanceCount
+	}
+
+	return userAttendanceCount, nil
 }
