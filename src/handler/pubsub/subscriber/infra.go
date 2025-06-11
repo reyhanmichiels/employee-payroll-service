@@ -1,4 +1,4 @@
-package pubsub
+package subscriber
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/reyhanmichiels/go-pkg/v2/pubsub/rabbitmq"
 	"github.com/reyhanmichies/employee-payroll-service/src/business/entity"
+	"github.com/reyhanmichies/employee-payroll-service/src/handler/pubsub"
 )
 
 type Exchange struct {
@@ -44,9 +45,9 @@ var MQQueueBind = []QueueBind{
 	},
 }
 
-func (p *pubSub) setupInfra() error {
+func (s *subscriber) setupInfra() error {
 	for _, exchange := range MQExchanges {
-		err := p.mq.CreateExchange(
+		err := s.mq.CreateExchange(
 			exchange.Name,
 			exchange.Type,
 			true,  // durable
@@ -61,7 +62,7 @@ func (p *pubSub) setupInfra() error {
 	}
 
 	for _, queue := range MQQueue {
-		_, err := p.mq.CreateQueue(
+		_, err := s.mq.CreateQueue(
 			queue.Name,
 			true,  // durable
 			false, // auto-delete
@@ -75,7 +76,7 @@ func (p *pubSub) setupInfra() error {
 	}
 
 	for _, bind := range MQQueueBind {
-		err := p.mq.BindQueue(
+		err := s.mq.BindQueue(
 			bind.QueueName,
 			bind.ExchangeName,
 			bind.RoutingKey,
@@ -90,20 +91,15 @@ func (p *pubSub) setupInfra() error {
 	return nil
 }
 
-func (p *pubSub) assignEvent() {
-	p.assignEventHandler(GetEvent(entity.ExchangePayrollEvent, entity.RoutingKeyPayrollCalculate), func(ctx context.Context, payload entity.PubSubMessage) error {
-
-		fmt.Printf("\n\n\n SELAMAT KAMU BERHASIL \n\n\n")
-
-		return nil
-	})
+func (s *subscriber) assignEvent() {
+	s.assignEventHandler(pubsub.GetEvent(entity.ExchangePayrollEvent, entity.RoutingKeyPayrollCalculate), s.uc.AttendancePeriod.PubSubGeneratePayroll)
 }
 
-func (p *pubSub) assignEventHandler(event string, handler handlerFunc) {
+func (s *subscriber) assignEventHandler(event string, handler handlerFunc) {
 	ctx := context.Background()
-	_, ok := p.eventHandlerMap[event]
+	_, ok := s.eventHandlerMap[event]
 	if ok {
-		p.log.Fatal(ctx, fmt.Sprintf("Failed assign handler for event %v", event))
+		s.log.Fatal(ctx, fmt.Sprintf("Failed assign handler for event %v", event))
 	}
-	p.eventHandlerMap[event] = handler
+	s.eventHandlerMap[event] = handler
 }

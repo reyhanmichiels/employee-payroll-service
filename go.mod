@@ -16,6 +16,7 @@ require (
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.8.12
 	go.uber.org/mock v0.4.0
+	golang.org/x/sync v0.7.0
 )
 
 require (
