@@ -156,6 +156,20 @@ make run
 This will start the application, and you can access the Swagger documentation at
 - `http://localhost:8080/swagger/index.html`
 
+## Default Credentials
+
+After setting up the project, you can use the following default credentials to log in:
+
+- **Admin Account**:
+  - Username: `admin@payroll.com`
+  - Password: `password`
+
+- **Employee Account**:
+  - Username: `user11@payroll.com`
+  - Password: `password`
+
+These credentials are for testing purposes only. Please ensure to update them in a production environment.
+
 ## Testing
 
 ```bash

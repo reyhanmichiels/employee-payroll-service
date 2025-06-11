@@ -39,11 +39,3 @@ CREATE TABLE IF NOT EXISTS roles
     "deleted_by" VARCHAR(255)
 );
 
-INSERT INTO users (fk_role_id, name, email, password, base_salary, status)
-VALUES (1, 'admin', 'admin@test.com', '$2a$10$T3jgYJ5EPO6m8G92NoLb4e8NhSBLUkipgfbPlMbmU4nWesRk1g9wi', 20000000.00, 1),
-       (2, 'user', 'user1@test.com', '$2a$10$T3jgYJ5EPO6m8G92NoLb4e8NhSBLUkipgfbPlMbmU4nWesRk1g9wi', 10000000.00, 1);
-
-
-INSERT INTO roles ("id", "role")
-VALUES (1, 'admin'),
-       (2, 'user');
