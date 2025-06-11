@@ -50,8 +50,10 @@ type PayslipUpdateParam struct {
 }
 
 type PayslipParam struct {
-	ID          int64 `db:"id" param:"id" json:"id"`
-	QueryOption query.Option
-	BypassCache bool
+	ID                 int64 `db:"id" param:"id" json:"id"`
+	AttendancePeriodID int64 `db:"fk_attendance_period_id" param:"attendance_period_id"`
+	UserID             int64 `db:"fk_user_id" param:"user_id" `
+	QueryOption        query.Option
+	BypassCache        bool
 	PaginationParam
 }
