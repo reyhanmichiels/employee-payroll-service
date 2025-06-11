@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/reyhanmichiels/go-pkg/v2/codes"
 	"github.com/reyhanmichiels/go-pkg/v2/errors"
@@ -233,7 +234,7 @@ func (a *attendancePeriod) calculateOvertimePayComponentAndDetail(proratedSalary
 
 		inputParams = append(inputParams, entity.PayslipDetailInputParam{
 			ItemType:    entity.PayslipItemTypeEarningOvertime,
-			Description: fmt.Sprintf("Overtime %v Hours on %v", overtime.OvertimeHour, overtime.OvertimeDate),
+			Description: fmt.Sprintf("Overtime %v Hours on %v", overtime.OvertimeHour, overtime.OvertimeDate.Time.Format(time.DateOnly)),
 			Amount:      null.Float64From(overtimePay),
 		})
 	}

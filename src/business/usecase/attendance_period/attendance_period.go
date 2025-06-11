@@ -31,6 +31,7 @@ type Interface interface {
 	Create(ctx context.Context, inputParam dto.CreateAttendancePeriodParam) (entity.AttendancePeriod, error)
 	GetCurrentAttendancePeriod(ctx context.Context) (entity.AttendancePeriod, error)
 	GeneratePayroll(ctx context.Context, attendancePeriodID int64) error
+	GeneratePayslip(ctx context.Context, attendancePeriodID int64) (dto.Payslip, error)
 
 	PubSubGeneratePayroll(ctx context.Context, message entity.PubSubMessage) error
 }
@@ -210,4 +211,81 @@ func (a *attendancePeriod) GeneratePayroll(
 
 		return nil
 	})
+}
+
+func (a *attendancePeriod) GeneratePayslip(ctx context.Context, attendancePeriodID int64) (dto.Payslip, error) {
+	loginUser, err := a.auth.GetUserAuthInfo(ctx)
+	if err != nil {
+		return dto.Payslip{}, err
+	}
+
+	attendancePeriod, err := a.attendancePeriodDom.Get(ctx, entity.AttendancePeriodParam{
+		ID: attendancePeriodID,
+		QueryOption: query.Option{
+			IsActive: true,
+		},
+	})
+	if err != nil {
+		switch errors.GetCode(err) {
+		case codes.CodeSQLRecordDoesNotExist:
+			return dto.Payslip{}, errors.NewWithCode(codes.CodeNotFound, "attendance period not found")
+		default:
+			return dto.Payslip{}, err
+		}
+	}
+
+	payslip, err := a.payslipDom.Get(
+		ctx,
+		entity.PayslipParam{
+			AttendancePeriodID: attendancePeriodID,
+			UserID:             loginUser.ID,
+			QueryOption: query.Option{
+				IsActive: true,
+			},
+		},
+	)
+	if err != nil {
+		switch errors.GetCode(err) {
+		case codes.CodeSQLRecordDoesNotExist:
+			return dto.Payslip{}, errors.NewWithCode(codes.CodeNotFound, "payslip not found")
+		default:
+			return dto.Payslip{}, err
+		}
+	}
+
+	details, _, err := a.payslipDetailDom.GetList(
+		ctx,
+		entity.PayslipDetailParam{
+			PayslipID: payslip.ID,
+			QueryOption: query.Option{
+				IsActive:     true,
+				DisableLimit: true,
+			},
+		},
+	)
+	if err != nil {
+		return dto.Payslip{}, err
+	}
+
+	res := dto.Payslip{
+		StartDate:          attendancePeriod.StartDate,
+		EndDate:            attendancePeriod.EndDate,
+		BasePayComponent:   payslip.BasePayComponent,
+		OvertimeComponent:  payslip.OvertimeComponent,
+		ReimburseComponent: payslip.ReimbursementComponent,
+		TotalTakeHomePay:   payslip.TotalTakeHomePay,
+	}
+
+	resDetails := make([]dto.PayslipDetail, 0, len(details))
+	for _, detail := range details {
+		resDetails = append(resDetails, dto.PayslipDetail{
+			Type:        detail.ItemType,
+			Description: detail.Description,
+			Amount:      detail.Amount,
+		})
+	}
+
+	res.Details = resDetails
+
+	return res, nil
 }

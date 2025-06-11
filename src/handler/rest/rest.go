@@ -136,6 +136,7 @@ func (r *rest) Register() {
 	// attendance period
 	v1.POST("/admin/attendance-periods", r.AuthorizeScope(entity.RoleIDAdmin, r.CreateAttendancePeriod))
 	v1.POST("/admin/attendance-periods/:attendance_period_id/payroll", r.AuthorizeScope(entity.RoleIDAdmin, r.GeneratePayroll))
+	v1.GET("/attendance-periods/:attendance_period_id/payslip", r.GeneratePayslip)
 
 	// attendance
 	v1.POST("/attendances", r.SubmitAttendance)

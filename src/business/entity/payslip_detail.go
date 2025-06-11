@@ -52,6 +52,7 @@ type PayslipDetailUpdateParam struct {
 
 type PayslipDetailParam struct {
 	ID          int64 `db:"id" param:"id" json:"id"`
+	PayslipID   int64 `db:"fk_payslip_id" param:"payslip_id"`
 	QueryOption query.Option
 	BypassCache bool
 	PaginationParam
