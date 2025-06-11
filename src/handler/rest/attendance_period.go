@@ -1,8 +1,11 @@
 package rest
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/errors"
 	"github.com/reyhanmichies/employee-payroll-service/src/business/dto"
 )
 
@@ -17,7 +20,7 @@ import (
 // @Failure 400 {object} entity.HTTPResp{}
 // @Failure 409 {object} entity.HTTPResp{}
 // @Failure 500 {object} entity.HTTPResp{}
-// @Router /v1/attendance-periods [POST]
+// @Router /v1/admin/attendance-periods [POST]
 func (r *rest) CreateAttendancePeriod(ctx *gin.Context) {
 	var param dto.CreateAttendancePeriodParam
 	if err := r.Bind(ctx, &param); err != nil {
@@ -32,4 +35,39 @@ func (r *rest) CreateAttendancePeriod(ctx *gin.Context) {
 	}
 
 	r.httpRespSuccess(ctx, codes.CodeCreated, data, nil)
+}
+
+// GeneratePayroll godoc
+// @Summary Generate Payroll
+// @Description Generate payroll for a specific attendance period
+// @Tags Attendance Period
+// @Security BearerAuth
+// @Param attendance_period_id path int true "Attendance Period ID"
+// @Produce json
+// @Success 202 {object} entity.HTTPResp{}
+// @Failure 400 {object} entity.HTTPResp{}
+// @Failure 404 {object} entity.HTTPResp{}
+// @Failure 409 {object} entity.HTTPResp{}
+// @Failure 500 {object} entity.HTTPResp{}
+// @Router /v1/admin/attendance-periods/{attendance_period_id}/payroll [POST]
+func (r *rest) GeneratePayroll(ctx *gin.Context) {
+	attendancePeriodIDStr := ctx.Param("attendance_period_id")
+	if attendancePeriodIDStr == "" {
+		r.httpRespError(ctx, errors.NewWithCode(codes.CodeBadRequest, "attendance_period_id is empty"))
+		return
+	}
+
+	attendancePeriodID, err := strconv.ParseInt(attendancePeriodIDStr, 10, 64)
+	if err != nil {
+		r.httpRespError(ctx, errors.NewWithCode(codes.CodeBadRequest, "attendance_period_id is not a valid number"))
+		return
+	}
+
+	err = r.uc.AttendancePeriod.GeneratePayroll(ctx.Request.Context(), attendancePeriodID)
+	if err != nil {
+		r.httpRespError(ctx, err)
+		return
+	}
+
+	r.httpRespSuccess(ctx, codes.CodeAccepted, nil, nil)
 }
